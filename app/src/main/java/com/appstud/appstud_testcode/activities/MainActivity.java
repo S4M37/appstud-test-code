@@ -25,12 +25,14 @@ import com.appstud.appstud_testcode.adapters.MainViewPagerAdapter;
 import com.appstud.appstud_testcode.config.Const;
 import com.appstud.appstud_testcode.fragments.ListFragment;
 import com.appstud.appstud_testcode.fragments.MapFragment;
+import com.appstud.appstud_testcode.models.GoogleSearchModel;
+import com.appstud.appstud_testcode.services.OnLocationChangeListener;
+import com.appstud.appstud_testcode.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-/*
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -39,12 +41,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-*/
+
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -81,9 +84,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
         setContentView(R.layout.activity_main);
         initializeToolbar();
-        initiliazeTabView();
+        initializeTabView();
 
         hasPermissions(this, PERMISSIONS);
+        startLocationUpdates();
     }
 
     private void initializeToolbar() {
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         this.activityTitle = (TextView) findViewById(R.id.activity_title);
     }
 
-    private void initiliazeTabView() {
+    private void initializeTabView() {
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
         viewPager.setOffscreenPageLimit(3);
@@ -159,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     protected void startLocationUpdates() {
-        Log.d("startLocationUpdates()", "startLocationUpdates: ");
         // Create the location request
         LocationRequest mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
@@ -167,15 +170,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setFastestInterval(FASTEST_INTERVAL);
         // Request location updates
         if (mGoogleApiClient.isConnected()) {
-            Log.d("location", "startLocationUpdates: ");
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
@@ -187,17 +182,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         myLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
+        retrieveGoogleSearchData();
     }
 
     @Override
@@ -207,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     //Request Permissions
@@ -229,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case Const.MY_PERMISSIONS_REQUEST_LOCALISATION: {
-
+                startLocationUpdates();
             }
             // other 'switch' lines to check for other
             // permissions this app might request
@@ -241,8 +229,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (location == null) {
             return;
         }
+        Log.d("location", "onLocationChanged latitude: " + location.getLatitude());
+        Log.d("location", "onLocationChanged longitude: " + location.getLongitude());
         myLastLocation = location;
-        /*
+        retrieveGoogleSearchData();
+    }
+
+    public void retrieveGoogleSearchData() {
+
         Call<ResponseBody> call = Utils.getGoogleApiRetrofitServices().nearbySearch(getString(R.string.google_api_key),
                 myLastLocation.getLatitude() + "," + myLastLocation.getLongitude(), 2000, "finance", queryText);
         call.enqueue(new Callback<ResponseBody>() {
@@ -257,34 +251,30 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     JSONObject jsonObject = new JSONObject(response.body().string());
                     JSONArray jsonArray = jsonObject.getJSONArray("results");
                     Gson gson = Utils.getGson();
-                    ArrayList<String> suggestions = new ArrayList<>();
                     List<GoogleSearchModel> nearbySearchResults = new ArrayList<>();
                     int size = jsonArray.length();
                     for (int i = 0; i < size; i++) {
                         GoogleSearchModel googleSearchModel = gson.fromJson(jsonArray.getString(i), GoogleSearchModel.class);
-                        suggestions.add(googleSearchModel.name + " - " + googleSearchModel.vicinity);
                         nearbySearchResults.add(googleSearchModel);
                     }
-                    if (size > 0) {
-                        Log.d("suggestion", "onResponse: " + suggestions.toString());
-                        materialSearchView.setSuggestions(suggestions.toArray(new String[suggestions.size()]));
-                        //materialSearchView.showSuggestions();
-                    } else {
-                        materialSearchView.setSuggestions(new String[]{});
+                    //wake up list and map fragment to handle google result
+                    for (OnLocationChangeListener onLocationChangeListener : onLocationChangeListeners) {
+                        if (onLocationChangeListener != null) {
+                            onLocationChangeListener.onLocationChangeListener(myLastLocation, nearbySearchResults);
+                        }
                     }
+
                 } catch (NullPointerException | JSONException | IOException e) {
                     e.printStackTrace();
                 }
-                materialSearchView.setLoading(false);
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                materialSearchView.setLoading(false);
                 t.printStackTrace();
             }
         });
-        */
-
     }
+
+    public List<OnLocationChangeListener> onLocationChangeListeners = new ArrayList<>();
 }
