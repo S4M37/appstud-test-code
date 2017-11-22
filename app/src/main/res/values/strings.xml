@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AppStud-TestCode</string>
+    <string name="google_map_api_key"></string>
+    <string name="google_api_key"></string>
+    <string name="tab_img">TabImage</string>
+    <string name="activity_title_map">Map</string>
+    <string name="activity_title_list">List</string>
 </resources>
