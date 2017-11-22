@@ -9,4 +9,6 @@
     <dimen name="custom_tab_layout_height">72dp</dimen>
     <dimen name="tab_img">24dp</dimen>
     <dimen name="pin_dimen">36dp</dimen>
+    <dimen name="list_location_item">200dp</dimen>
+    <dimen name="list_location_label">12sp</dimen>
 </resources>

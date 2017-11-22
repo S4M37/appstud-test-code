@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_location_item"
+    android:orientation="vertical">
+
+    <com.appstud.appstud_testcode.views.NetworkImageView
+        android:id="@+id/item_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/item_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/grey_fade"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:textColor="@color/white"
+        android:textSize="@dimen/list_location_label" />
+
+</RelativeLayout>

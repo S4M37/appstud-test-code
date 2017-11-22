@@ -2,6 +2,7 @@ package com.appstud.appstud_testcode.utils;
 
 import com.appstud.appstud_testcode.config.Endpoints;
 import com.appstud.appstud_testcode.services.GoogleApiRetrofitServices;
+import com.appstud.appstud_testcode.services.OnRequestLocationListener;
 import com.google.gson.Gson;
 
 import java.math.BigDecimal;
@@ -53,5 +54,7 @@ public class Utils {
         bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
         return bd.floatValue();
     }
+
+    public static OnRequestLocationListener onRequestLocationListener; //migrate to list if multiple uses needed
 
 }

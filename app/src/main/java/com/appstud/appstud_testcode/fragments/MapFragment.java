@@ -35,7 +35,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleA
 
     private ProgressBar progressBar;
     private View rootView;
-    private GoogleMap googleMaps;
+    private GoogleMap googleMaps;//got project limits at google console
     private GoogleApiClient mGoogleApiClient;
     private LayoutInflater inflater;
 
@@ -104,8 +104,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleA
                         myLastKnownLocation.getLongitude()), 14));
                 progressBar.setVisibility(View.GONE);
                 for (GoogleSearchModel googleSearchModel : googleSearchModelArrayList) {
-                    MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.valueOf(googleSearchModel.geometry.location.lat),
-                            Double.valueOf(googleSearchModel.geometry.location.lng))).title(googleSearchModel.name)
+                    MarkerOptions marker = new MarkerOptions().position(new LatLng(Double.valueOf(googleSearchModel.getGeometry().location.lat),
+                            Double.valueOf(googleSearchModel.getGeometry().location.lng))).title(googleSearchModel.getName())
                             .icon(BitmapDescriptorFactory.fromBitmap(WidgetUtils.getMarkerBitmapFromView(inflater, googleSearchModel)));
                     googleMaps.addMarker(marker);
                 }

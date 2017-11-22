@@ -6,7 +6,7 @@ import com.appstud.appstud_testcode.models.GoogleSearchModel;
 
 import java.util.List;
 
-//observable Pattern
+//triggered when location changes or data retried from Google
 public interface OnLocationChangeListener {
     void onLocationChangeListener(Location myLastKnownLocation, List<GoogleSearchModel> googleSearchModelArrayList);
 }

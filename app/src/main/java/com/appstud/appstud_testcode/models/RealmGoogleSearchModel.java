@@ -1,14 +1,15 @@
 package com.appstud.appstud_testcode.models;
 
-public class GoogleSearchModel {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class RealmGoogleSearchModel extends RealmObject {
+    @PrimaryKey
     private String id;
     private String name;
     private String icon;
-    private String[] types;
     private String vicinity;
     private String place_id;
-    private Geometry geometry;
-    private Photo[] photos;
 
     public String getId() {
         return id;
@@ -33,15 +34,7 @@ public class GoogleSearchModel {
     public void setIcon(String icon) {
         this.icon = icon;
     }
-
-    public String[] getTypes() {
-        return types;
-    }
-
-    public void setTypes(String[] types) {
-        this.types = types;
-    }
-
+    
     public String getVicinity() {
         return vicinity;
     }
@@ -58,20 +51,5 @@ public class GoogleSearchModel {
         this.place_id = place_id;
     }
 
-    public Geometry getGeometry() {
-        return geometry;
-    }
-
-    public void setGeometry(Geometry geometry) {
-        this.geometry = geometry;
-    }
-
-    public Photo[] getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(Photo[] photos) {
-        this.photos = photos;
-    }
 }
 

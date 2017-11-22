@@ -2,6 +2,7 @@ package com.appstud.appstud_testcode.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Callback;
@@ -45,13 +46,23 @@ public class NetworkImageView extends android.support.v7.widget.AppCompatImageVi
         });
     }
 
-    public void setImageUrl(String imageURL) {
+    public void setImageUrl(final String imageURL) {
         this.imageURL = imageURL;
         Transformation transformation = new RoundedTransformationBuilder()
                 .cornerRadiusDp(9)
                 .oval(false)
                 .build();
-        Picasso.with(getContext()).load(imageURL).transform(transformation).resize(400, 400).centerCrop().into(this);
+        Picasso.with(getContext()).load(imageURL).transform(transformation).resize(400, 400).centerCrop().into(this, new Callback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError() {
+                Log.d("error", "onError: " + imageURL);
+            }
+        });
     }
 
     @Override

@@ -27,7 +27,7 @@ public class WidgetUtils {
 
         View customMarkerView = inflater.inflate(R.layout.view_custom_marker, null);
         CircleImageView pinImg = customMarkerView.findViewById(R.id.pin_img);
-        pinImg.setImageUrl(googleSearchModel.icon);
+        pinImg.setImageUrl(googleSearchModel.getIcon());
 
         customMarkerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         customMarkerView.layout(0, 0, customMarkerView.getMeasuredWidth(), customMarkerView.getMeasuredHeight());

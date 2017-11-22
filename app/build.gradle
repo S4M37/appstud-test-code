@@ -35,5 +35,7 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
     compile 'com.google.android.gms:play-services:11.0.4'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    // Realm
+    compile 'io.realm:realm-android:0.82.1'
     testCompile 'junit:junit:4.12'
 }

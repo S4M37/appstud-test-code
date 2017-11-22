@@ -2,6 +2,7 @@
     <string name="app_name">AppStud-TestCode</string>
     <string name="google_map_api_key">AIzaSyA5z0WS8CLxN-RAGQY5uidCvsuWeG0bNfg</string>
     <string name="google_api_key">AIzaSyCJ-ZXF9bJLte4_kTa2vBCvXdAsXLTeKuA</string>
+    <!--<string name="google_api_key">AIzaSyBuOjpfJmJx_BhzGDLR4xjmM1ZKcoCO8IM</string>-->
     <string name="tab_img">TabImage</string>
     <string name="activity_title_map">Map</string>
     <string name="activity_title_list">List</string>

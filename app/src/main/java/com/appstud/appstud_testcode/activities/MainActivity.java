@@ -27,6 +27,7 @@ import com.appstud.appstud_testcode.fragments.ListFragment;
 import com.appstud.appstud_testcode.fragments.MapFragment;
 import com.appstud.appstud_testcode.models.GoogleSearchModel;
 import com.appstud.appstud_testcode.services.OnLocationChangeListener;
+import com.appstud.appstud_testcode.services.OnRequestLocationListener;
 import com.appstud.appstud_testcode.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -88,6 +89,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         hasPermissions(this, PERMISSIONS);
         startLocationUpdates();
+
+        Utils.onRequestLocationListener = new OnRequestLocationListener() {
+            @Override
+            public void onRequestLocationListener() {
+                startLocationUpdates();
+            }
+        };
     }
 
     private void initializeToolbar() {
@@ -238,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void retrieveGoogleSearchData() {
 
         Call<ResponseBody> call = Utils.getGoogleApiRetrofitServices().nearbySearch(getString(R.string.google_api_key),
-                myLastLocation.getLatitude() + "," + myLastLocation.getLongitude(), 2000, "finance", queryText);
+                myLastLocation.getLatitude() + "," + myLastLocation.getLongitude(), 2000, "bar", queryText);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
