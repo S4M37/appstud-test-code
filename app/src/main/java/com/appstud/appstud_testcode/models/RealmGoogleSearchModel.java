@@ -4,6 +4,19 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 public class RealmGoogleSearchModel extends RealmObject {
+
+    public RealmGoogleSearchModel() {
+
+    }
+
+    public RealmGoogleSearchModel(String id, String name, String icon, String vicinity, String place_id) {
+        this.id = id;
+        this.name = name;
+        this.icon = icon;
+        this.vicinity = vicinity;
+        this.place_id = place_id;
+    }
+
     @PrimaryKey
     private String id;
     private String name;
@@ -34,7 +47,7 @@ public class RealmGoogleSearchModel extends RealmObject {
     public void setIcon(String icon) {
         this.icon = icon;
     }
-    
+
     public String getVicinity() {
         return vicinity;
     }

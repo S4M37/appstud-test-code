@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.appstud.appstud_testcode.R;
 import com.appstud.appstud_testcode.adapters.MainViewPagerAdapter;
@@ -26,6 +27,8 @@ import com.appstud.appstud_testcode.config.Const;
 import com.appstud.appstud_testcode.fragments.ListFragment;
 import com.appstud.appstud_testcode.fragments.MapFragment;
 import com.appstud.appstud_testcode.models.GoogleSearchModel;
+import com.appstud.appstud_testcode.models.RealmGoogleSearchModel;
+import com.appstud.appstud_testcode.realm.RealmController;
 import com.appstud.appstud_testcode.services.OnLocationChangeListener;
 import com.appstud.appstud_testcode.services.OnRequestLocationListener;
 import com.appstud.appstud_testcode.utils.Utils;
@@ -43,7 +46,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import io.realm.Realm;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,10 +65,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private static final int UPDATE_INTERVAL = 10000;
     private static final int FASTEST_INTERVAL = 5000;
+    private Realm realm;
 
     @Override
     public void onStart() {
         mGoogleApiClient.connect();
+        //get realm instance
+        this.realm = RealmController.with(this).getRealm();
+        RealmController.with(this).refresh();
         super.onStart();
     }
 
@@ -244,7 +254,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void retrieveGoogleSearchData() {
-
+        if (!Utils.isNetworkAvailable(this)) {
+            Toast.makeText(MainActivity.this,getString(R.string.offline_mode),Toast.LENGTH_LONG).show();
+            return;
+        }
         Call<ResponseBody> call = Utils.getGoogleApiRetrofitServices().nearbySearch(getString(R.string.google_api_key),
                 myLastLocation.getLatitude() + "," + myLastLocation.getLongitude(), 2000, "bar", queryText);
         call.enqueue(new Callback<ResponseBody>() {
@@ -257,10 +270,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
                 try {
                     JSONObject jsonObject = new JSONObject(response.body().string());
-                    JSONArray jsonArray = jsonObject.getJSONArray("results");
-                    Gson gson = Utils.getGson();
-                    List<GoogleSearchModel> nearbySearchResults = new ArrayList<>();
-                    int size = jsonArray.length();
+                    final JSONArray jsonArray = jsonObject.getJSONArray("results");
+                    final Gson gson = Utils.getGson();
+                    final List<GoogleSearchModel> nearbySearchResults = new ArrayList<>();
+                    final int size = jsonArray.length();
+
                     for (int i = 0; i < size; i++) {
                         GoogleSearchModel googleSearchModel = gson.fromJson(jsonArray.getString(i), GoogleSearchModel.class);
                         nearbySearchResults.add(googleSearchModel);
@@ -272,6 +286,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         }
                     }
 
+                    //save realm
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    RealmController.getInstance().clearAll();
+                                    for (GoogleSearchModel googleSearchModel : nearbySearchResults) {
+                                        realm.beginTransaction();
+                                        RealmGoogleSearchModel realmGoogleSearchModel = new RealmGoogleSearchModel(
+                                                googleSearchModel.getId(), googleSearchModel.getName(), googleSearchModel.getIcon(),
+                                                googleSearchModel.getVicinity(), googleSearchModel.getPlace_id());
+                                        realm.copyToRealm(realmGoogleSearchModel);
+                                        realm.commitTransaction();
+                                    }
+                                }
+                            });
+                        }
+                    }, 1000);
                 } catch (NullPointerException | JSONException | IOException e) {
                     e.printStackTrace();
                 }

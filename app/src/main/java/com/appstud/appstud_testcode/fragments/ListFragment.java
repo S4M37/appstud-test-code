@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.appstud.appstud_testcode.R;
 import com.appstud.appstud_testcode.activities.MainActivity;
 import com.appstud.appstud_testcode.adapters.GoogleSearchRecyclerViewAdapter;
 import com.appstud.appstud_testcode.models.GoogleSearchModel;
+import com.appstud.appstud_testcode.realm.RealmController;
 import com.appstud.appstud_testcode.services.OnLocationChangeListener;
 import com.appstud.appstud_testcode.utils.Utils;
 
@@ -37,8 +39,8 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.list_fragment, container, false);
-        initializeListPlaces(rootView);
         initializeListSwipRefresh(rootView);
+        initializeListPlaces(rootView);
         return rootView;
     }
 
@@ -48,6 +50,9 @@ public class ListFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                if (!Utils.isNetworkAvailable(getContext())) {
+                    Log.d("realm", "initializeListPlaces: " + RealmController.with(ListFragment.this).getGoogleSearchModels());
+                }
                 if (Utils.onRequestLocationListener != null) {
                     Utils.onRequestLocationListener.onRequestLocationListener();
                 }
@@ -58,8 +63,6 @@ public class ListFragment extends Fragment {
     private void initializeListPlaces(View rootView) {
         listPlaces = rootView.findViewById(R.id.list_places);
         listPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
-
-
         // display google location in adapter and attached to ReyclerView
         ((MainActivity) getActivity()).onLocationChangeListeners.add(new OnLocationChangeListener() {
             @Override
@@ -75,5 +78,9 @@ public class ListFragment extends Fragment {
                 }
             }
         });
+        if (!Utils.isNetworkAvailable(getContext())) {
+            swipeRefreshLayout.setRefreshing(false);
+            Log.d("realm", "initializeListPlaces: " + RealmController.with(this).getGoogleSearchModels());
+        }
     }
 }
